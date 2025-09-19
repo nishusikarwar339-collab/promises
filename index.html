@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Title Search</title>
+  </head>
+
+  <body>
+   <style>
+/* .body{
+  background-color: black;
+} */
+
+    .card {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px;
+      width: 250px;
+      border-radius: 5px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .card img {
+      max-width: 100%;
+      height: 150px;
+      object-fit: contain;
+    }
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    /* Popup Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      cursor: pointer;
+      font-size: 18px;
+      color: #333;
+    }
+    </style>
+<h2>Search Products by Title</h2>
+  <input type="text" id="searchInput" placeholder="Enter product title keyword..." />
+
+  <div id="cardContainer" class="card-container"></div> <!--multiple cards k liyee use kiya h ..-->>
+
+  <!-- Modal --> <!--pop up k liyeee use kiya h -->
+  <div id="productModal" class="modal">
+    <div class="modal-content" id="modalContent">
+      <span class="close-btn" onclick="closeModal()">✖</span>
+      <!-- Product details will be inserted here -->
+    </div>
+  </div>
+
+    <script>
+      // async function Serverdata() {
+      //   const api = await fetch("https://fakestoreapi.com/products");
+      //   const finaldata = await api.json();  // json m data mngane k liyeee..
+
+      //   const titleeee = document.getElementById("title").value; // user input
+
+      //   const uldata = document.getElementById("data");
+      //   uldata.innerHTML = "";   // data ko html form m lane k liye..
+
+      //   for (let i = 0; i < finaldata.length; i++) {
+      //     if (
+      //       finaldata[i].title.toLowerCase().includes(titleeee.toLowerCase())
+      //     ) {
+      //       uldata.innerHTML += `
+      //       <div class="box">
+      // <img src="${finaldata[i].image}" >
+      //      <h2>${finaldata[i].title}</h2>
+      //         <h4>${finaldata[i].rating.rate}</h4>
+      //   </div>
+      //     `;
+      //     }
+      //   }
+      // }
+
+      let allProducts = []; //khalii array bnaya h jis se api se laee gye sare products store ho jaege...
+
+      async function fetchData() {  //asyncronus function ka use api fetch krne k liyee kiya h 
+  const response = await fetch("https://fakestoreapi.com/products");  //await api se products kii details lata h 
+  const data = await response.json();  //respone. ko json format m convert krta h
+  allProducts = data;  //api se mile data ko allproducts m dalne k liye
+}
+
+ function showCardsBySearch(keyword) {  // function search ke according product cards dikhane k liye...
+      const container = document.getElementById("cardContainer");  //document.getElementById("cardContainer") → jis div m cards show honge
+      container.innerHTML = " "; //container.innerHTML = " "; → purane cards ko clear kr dega...
+
+       const filtered = allProducts.filter(item =>   // filter array ka use kiya gya h ... takii all products m se bs vhiii product show ho jiska keyword mile
+        item.title.toLowerCase().includes(keyword.toLowerCase())  //toLowerCase= case insative case .. jis se ABC = abc dono search ho .. and include is use to search keyword
+      );
+
+        filtered.forEach(product => { // filtered product k liye new div bnaya 
+        const card = document.createElement("div");
+        card.className = "card";   // css dene k liyee
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.title}">
+          <h3>${product.title}</h3>
+          <p><strong>Price:</strong> $${product.price}</p>
+          <p>${product.description.substring(0, 80)}...</p>
+        `;
+        card.addEventListener("click", () => openModal(product));
+        container.appendChild(card);
+      });
+    }
+
+    function openModal(product) {
+      const modal = document.getElementById("productModal");
+      const modalContent = document.getElementById("modalContent");
+
+      modalContent.innerHTML = `
+        <span class="close-btn" onclick="closeModal()">✖</span>
+        <h2>${product.title}</h2>
+        <img src="${product.image}" alt="${product.title}" style="width: 100%; max-height: 300px; object-fit: contain;">
+        <p><strong>Price:</strong> $${product.price}</p>
+        <p><strong>Category:</strong> ${product.category}</p>
+        <p><strong>Description:</strong> ${product.description}</p>
+      `;
+      modal.style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("productModal").style.display = "none";
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function() {
+      const keyword = this.value;
+      if (keyword.length > 0) {
+        showCardsBySearch(keyword);
+      } else {
+        document.getElementById("cardContainer").innerHTML = "";
+      }
+    });
+
+    fetchData();
+    </script>
+  </body>
+</html>
+
+
+
